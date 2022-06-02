@@ -1,0 +1,27 @@
+specVersion: 0.0.4
+schema:
+  file: schema.graphql
+dataSources:
+  - kind: ethereum
+    name: NiftyswapFactory
+    network: matic
+    source:
+      address: "0xbB62bFe0ba9eFD3f6f0DFA5dA66fCeF4F4259949"
+      abi: NiftyswapFactory
+      startBlock: 21750456
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: NiftyswapFactory/NiftyswapFactory.wasm
+      entities:
+        - NewExchange
+        - OwnershipTransferred
+      abis:
+        - name: NiftyswapFactory
+          file: NiftyswapFactory/abis/NiftyswapFactory.json
+      eventHandlers:
+        - event: NewExchange(indexed address,indexed address,indexed uint256,address)
+          handler: handleNewExchange
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred

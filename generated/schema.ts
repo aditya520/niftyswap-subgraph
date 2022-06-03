@@ -70,6 +70,300 @@ export class Factory extends Entity {
   }
 }
 
+export class Currency extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save Currency entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type Currency must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set("Currency", id.toString(), this);
+    }
+  }
+
+  static load(id: string): Currency | null {
+    return changetype<Currency | null>(store.get("Currency", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get symbol(): string | null {
+    let value = this.get("symbol");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set symbol(value: string | null) {
+    if (!value) {
+      this.unset("symbol");
+    } else {
+      this.set("symbol", Value.fromString(<string>value));
+    }
+  }
+
+  get name(): string | null {
+    let value = this.get("name");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set name(value: string | null) {
+    if (!value) {
+      this.unset("name");
+    } else {
+      this.set("name", Value.fromString(<string>value));
+    }
+  }
+
+  get decimals(): BigInt {
+    let value = this.get("decimals");
+    return value!.toBigInt();
+  }
+
+  set decimals(value: BigInt) {
+    this.set("decimals", Value.fromBigInt(value));
+  }
+
+  get totalSupply(): BigInt | null {
+    let value = this.get("totalSupply");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set totalSupply(value: BigInt | null) {
+    if (!value) {
+      this.unset("totalSupply");
+    } else {
+      this.set("totalSupply", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get volume(): BigDecimal | null {
+    let value = this.get("volume");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
+  }
+
+  set volume(value: BigDecimal | null) {
+    if (!value) {
+      this.unset("volume");
+    } else {
+      this.set("volume", Value.fromBigDecimal(<BigDecimal>value));
+    }
+  }
+
+  get poolCount(): BigInt | null {
+    let value = this.get("poolCount");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set poolCount(value: BigInt | null) {
+    if (!value) {
+      this.unset("poolCount");
+    } else {
+      this.set("poolCount", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get totalValueLocked(): BigDecimal | null {
+    let value = this.get("totalValueLocked");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
+  }
+
+  set totalValueLocked(value: BigDecimal | null) {
+    if (!value) {
+      this.unset("totalValueLocked");
+    } else {
+      this.set("totalValueLocked", Value.fromBigDecimal(<BigDecimal>value));
+    }
+  }
+}
+
+export class Token extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save Token entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type Token must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set("Token", id.toString(), this);
+    }
+  }
+
+  static load(id: string): Token | null {
+    return changetype<Token | null>(store.get("Token", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get symbol(): string | null {
+    let value = this.get("symbol");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set symbol(value: string | null) {
+    if (!value) {
+      this.unset("symbol");
+    } else {
+      this.set("symbol", Value.fromString(<string>value));
+    }
+  }
+
+  get name(): string | null {
+    let value = this.get("name");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set name(value: string | null) {
+    if (!value) {
+      this.unset("name");
+    } else {
+      this.set("name", Value.fromString(<string>value));
+    }
+  }
+
+  get decimals(): BigInt | null {
+    let value = this.get("decimals");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set decimals(value: BigInt | null) {
+    if (!value) {
+      this.unset("decimals");
+    } else {
+      this.set("decimals", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get totalSupply(): BigInt | null {
+    let value = this.get("totalSupply");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set totalSupply(value: BigInt | null) {
+    if (!value) {
+      this.unset("totalSupply");
+    } else {
+      this.set("totalSupply", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get volume(): BigDecimal | null {
+    let value = this.get("volume");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
+  }
+
+  set volume(value: BigDecimal | null) {
+    if (!value) {
+      this.unset("volume");
+    } else {
+      this.set("volume", Value.fromBigDecimal(<BigDecimal>value));
+    }
+  }
+
+  get poolCount(): BigInt | null {
+    let value = this.get("poolCount");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set poolCount(value: BigInt | null) {
+    if (!value) {
+      this.unset("poolCount");
+    } else {
+      this.set("poolCount", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get totalValueLocked(): BigDecimal | null {
+    let value = this.get("totalValueLocked");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
+  }
+
+  set totalValueLocked(value: BigDecimal | null) {
+    if (!value) {
+      this.unset("totalValueLocked");
+    } else {
+      this.set("totalValueLocked", Value.fromBigDecimal(<BigDecimal>value));
+    }
+  }
+}
+
 export class Exchange extends Entity {
   constructor(id: string) {
     super();
@@ -194,100 +488,5 @@ export class Exchange extends Entity {
     } else {
       this.set("txCount", Value.fromBigInt(<BigInt>value));
     }
-  }
-}
-
-export class Token extends Entity {
-  constructor(id: string) {
-    super();
-    this.set("id", Value.fromString(id));
-  }
-
-  save(): void {
-    let id = this.get("id");
-    assert(id != null, "Cannot save Token entity without an ID");
-    if (id) {
-      assert(
-        id.kind == ValueKind.STRING,
-        `Entities of type Token must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
-      );
-      store.set("Token", id.toString(), this);
-    }
-  }
-
-  static load(id: string): Token | null {
-    return changetype<Token | null>(store.get("Token", id));
-  }
-
-  get id(): string {
-    let value = this.get("id");
-    return value!.toString();
-  }
-
-  set id(value: string) {
-    this.set("id", Value.fromString(value));
-  }
-
-  get symbol(): string {
-    let value = this.get("symbol");
-    return value!.toString();
-  }
-
-  set symbol(value: string) {
-    this.set("symbol", Value.fromString(value));
-  }
-
-  get name(): string {
-    let value = this.get("name");
-    return value!.toString();
-  }
-
-  set name(value: string) {
-    this.set("name", Value.fromString(value));
-  }
-
-  get decimals(): BigInt {
-    let value = this.get("decimals");
-    return value!.toBigInt();
-  }
-
-  set decimals(value: BigInt) {
-    this.set("decimals", Value.fromBigInt(value));
-  }
-
-  get totalSupply(): BigInt {
-    let value = this.get("totalSupply");
-    return value!.toBigInt();
-  }
-
-  set totalSupply(value: BigInt) {
-    this.set("totalSupply", Value.fromBigInt(value));
-  }
-
-  get volume(): BigDecimal {
-    let value = this.get("volume");
-    return value!.toBigDecimal();
-  }
-
-  set volume(value: BigDecimal) {
-    this.set("volume", Value.fromBigDecimal(value));
-  }
-
-  get poolCount(): BigInt {
-    let value = this.get("poolCount");
-    return value!.toBigInt();
-  }
-
-  set poolCount(value: BigInt) {
-    this.set("poolCount", Value.fromBigInt(value));
-  }
-
-  get totalValueLocked(): BigDecimal {
-    let value = this.get("totalValueLocked");
-    return value!.toBigDecimal();
-  }
-
-  set totalValueLocked(value: BigDecimal) {
-    this.set("totalValueLocked", Value.fromBigDecimal(value));
   }
 }

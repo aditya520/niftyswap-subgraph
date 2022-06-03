@@ -17,9 +17,9 @@ type Exchange @entity {
   # block pool was created at
   createdAtBlockNumber: BigInt
   # token
-  token: ID!
+  token: Token!
   # currency
-  currency: ID!
+  currency: Currency!
   # fee amount
   lpFee: BigInt!
   # in range liquidity
@@ -29,16 +29,39 @@ type Exchange @entity {
 }
 
 type Currency @entity {
-  # token address
+  # currency address
+  id: ID!
+  # currency symbol
+  symbol: String
+  # currency name
+  name: String
+  # currency decimals
+  decimals: BigInt!
+  # currency total supply
+  totalSupply: BigInt
+  # volume in token units
+  volume: BigDecimal
+  # number of Exchanges containing this currency
+  poolCount: BigInt
+  # liquidity across all Exchanges in token units
+  totalValueLocked: BigDecimal
+}
+
+type Token @entity {
+   # token address
   id: ID!
   # token symbol
-  symbol: String!
+  symbol: String
   # token name
-  name: String!
+  name: String
   # token decimals
-  decimals: BigInt!
+  decimals: BigInt
   # token total supply
-  totalSupply: BigInt!
+  totalSupply: BigInt
   # volume in token units
-  volume: BigDecimal!
+  volume: BigDecimal
+  # number of Exchanges containing this currency
+  poolCount: BigInt
+  # liquidity across all Exchanges in token units
+  totalValueLocked: BigDecimal
 }

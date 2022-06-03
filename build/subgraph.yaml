@@ -1,4 +1,5 @@
 specVersion: 0.0.4
+description: Niftyswap Test.
 schema:
   file: schema.graphql
 dataSources:
@@ -15,13 +16,57 @@ dataSources:
       language: wasm/assemblyscript
       file: NiftyswapFactory/NiftyswapFactory.wasm
       entities:
-        - NewExchange
-        - OwnershipTransferred
+        - Exchange
+        - Currency
+        - Token
       abis:
         - name: NiftyswapFactory
-          file: NiftyswapFactory/abis/NiftyswapFactory.json
+          file: NiftyswapFactory/abis/NiftyswapFactory20.json
+        - name: NiftyswapExchange
+          file: NiftyswapFactory/abis/NiftyswapExchange20.json
+        - name: ERC20
+          file: NiftyswapFactory/abis/ERC20.json
+        - name: ERC20SymbolBytes
+          file: NiftyswapFactory/abis/ERC20SymbolBytes.json
+        - name: ERC20NameBytes
+          file: NiftyswapFactory/abis/ERC20NameBytes.json
+        - name: ERC1155
+          file: NiftyswapFactory/abis/ERC1155.json
       eventHandlers:
         - event: NewExchange(indexed address,indexed address,indexed uint256,address)
           handler: handleNewExchange
         - event: OwnershipTransferred(indexed address,indexed address)
           handler: handleOwnershipTransferred
+templates:
+  - kind: ethereum/contract
+    name: NiftyswapExchange
+    network: matic
+    source:
+      abi: NiftyswapExchange
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: templates/NiftyswapExchange/NiftyswapExchange.wasm
+      entities:
+        - Exchange
+        - Token
+        - Currency
+      abis:
+        - name: NiftyswapExchange
+          file: NiftyswapExchange/abis/NiftyswapExchange20.json
+        - name: NiftyswapFactory
+          file: NiftyswapExchange/abis/NiftyswapFactory20.json
+        - name: ERC20
+          file: NiftyswapExchange/abis/ERC20.json
+        - name: ERC1155
+          file: NiftyswapExchange/abis/ERC1155.json
+      eventHandlers:
+        - event: LiquidityAdded(indexed address,uint256[],uint256[],uint256[])
+          handler: handleLiquidityAdded
+        - event: LiquidityRemoved(indexed address,uint256[],uint256[],uint256[])
+          handler: handleLiquidityRemoved
+        - event: TokensPurchase(indexed address,indexed address,uint256[],uint256[],uint256[])
+          handler: handleTokenPurchase
+        - event: CurrencyPurchase(indexed address,indexed address,uint256[],uint256[],uint256[])
+          handler: handleTokenPurchase

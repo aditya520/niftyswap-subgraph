@@ -1,3 +1,4 @@
+import { Currency,Token } from './../generated/schema';
 import { FACTORY_ADDRESS } from './utils/constants';
 import { BigInt } from "@graphprotocol/graph-ts"
 import {
@@ -7,6 +8,7 @@ import {
 } from "../generated/NiftyswapFactory/NiftyswapFactory"
 import { Factory, Exchange } from "../generated/schema"
 import { ADDRESS_ZERO } from './utils/constants';
+import { fetchCurrencyDecimals } from './utils/currency';
 
 export function handleNewExchange(event: NewExchange): void {
   // Entities can be loaded from the store using a string ID; this ID
@@ -28,30 +30,32 @@ export function handleNewExchange(event: NewExchange): void {
   factory.exchangeCount = factory.exchangeCount.plus(BigInt.fromI32(1))
   factory.txCount = factory.txCount.plus(BigInt.fromI32(1))
 
-  // Entities can be written to the store with `.save()`
   factory.save()
 
-  // Note: If a handler doesn't require existing field values, it is faster
-  // _not_ to load the entity from the store. Instead, create it fresh with
-  // `new Entity(...)`, set the fields that should be updated and save the
-  // entity back to the store. Fields that were not set or unset remain
-  // unchanged, allowing for partial updates to be applied.
+  // Saving currency to the store
+  let currency = Currency.load(event.params.currency.toHexString())
+  if (currency == null) {
+    currency = new Currency(event.params.currency.toHexString())
+    let decimals = fetchCurrencyDecimals(event.params.currency)
+    if (decimals === null) {
+      decimals = BigInt.fromI32(18)
+    }
+    currency.decimals = decimals
+  }
+  // Entities can be written to the store with `.save()`
+  currency.save()
 
-  // let exchange = new Exchange(event.params.exchange.toHex())
-  // exchange.token = event.params.token
+  // Saving ERC1155 token to the store
 
-  // It is also possible to access smart contracts from mappings. For
-  // example, the contract that has emitted the event can be connected to
-  // with:
-  //
-  // let contract = Contract.bind(event.address)
-  //
-  // The following functions can then be called on this contract to access
-  // state variables and other data:
-  //
-  // - contract.getOwner(...)
-  // - contract.getPairExchanges(...)
-  // - contract.tokensToExchange(...)
+  let token = Token.load(event.params.token.toHexString())
+  if (token == null) {
+    token = new Token(event.params.token.toHexString())
+  }
+  token.save()
+
+  let exchange = new Exchange(event.params.exchange.toHexString()) as Exchange
+  exchange.token = token
+
 }
 
 export function handleOwnershipTransferred(event: OwnershipTransferred): void {

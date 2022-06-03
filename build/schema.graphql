@@ -9,25 +9,6 @@ type Factory @entity {
   owner: ID!
 }
 
-type Exchange @entity {
-  # exchange address
-  id: ID!
-  # creation
-  createdAtTimestamp: BigInt
-  # block pool was created at
-  createdAtBlockNumber: BigInt
-  # token
-  token: Token!
-  # currency
-  currency: Currency!
-  # fee amount
-  lpFee: BigInt!
-  # in range liquidity
-  liquidity: BigInt
-  # all time number of transactions
-  txCount: BigInt
-}
-
 type Currency @entity {
   # currency address
   id: ID!
@@ -47,15 +28,15 @@ type Currency @entity {
   totalValueLocked: BigDecimal
 }
 
-type Token @entity {
-   # token address
+type TokenMeta @entity {
+   # TokenMeta address
   id: ID!
-  # token symbol
-  symbol: String
   # token name
   name: String
   # token decimals
   decimals: BigInt
+  # tokens
+  tokenIds: [Token!]!
   # token total supply
   totalSupply: BigInt
   # volume in token units
@@ -64,4 +45,29 @@ type Token @entity {
   poolCount: BigInt
   # liquidity across all Exchanges in token units
   totalValueLocked: BigDecimal
+  # tokens
+}
+
+type Token @entity{
+  # tokenId
+  id: ID!
+}
+
+type Exchange @entity {
+  # exchange address
+  id: ID!
+  # creation
+  createdAtTimestamp: BigInt
+  # block pool was created at
+  createdAtBlockNumber: BigInt
+  # token
+  tokenMeta: TokenMeta!
+  # currency
+  currency: Currency!
+  # fee amount
+  lpFee: BigInt
+  # in range liquidity
+  liquidity: BigInt
+  # all time number of transactions
+  txCount: BigInt
 }

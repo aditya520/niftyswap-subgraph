@@ -19,6 +19,7 @@ dataSources:
         - Exchange
         - Currency
         - Token
+        - TokenMeta
       abis:
         - name: NiftyswapFactory
           file: NiftyswapFactory/abis/NiftyswapFactory20.json
@@ -52,6 +53,7 @@ templates:
         - Exchange
         - Token
         - Currency
+        - TokenMeta
       abis:
         - name: NiftyswapExchange
           file: NiftyswapExchange/abis/NiftyswapExchange20.json

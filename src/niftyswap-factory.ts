@@ -1,4 +1,4 @@
-import { Currency,Token } from './../generated/schema';
+import { Currency, Token, TokenMeta } from './../generated/schema';
 import { FACTORY_ADDRESS } from './utils/constants';
 import { BigInt } from "@graphprotocol/graph-ts"
 import {
@@ -47,15 +47,21 @@ export function handleNewExchange(event: NewExchange): void {
 
   // Saving ERC1155 token to the store
 
-  let token = Token.load(event.params.token.toHexString())
-  if (token == null) {
-    token = new Token(event.params.token.toHexString())
+  let tokenMeta = TokenMeta.load(event.params.token.toHexString())
+  if (tokenMeta == null) {
+    tokenMeta = new TokenMeta(event.params.token.toHexString())
+    tokenMeta.tokenIds = []
   }
-  token.save()
+  tokenMeta.save()
 
   let exchange = new Exchange(event.params.exchange.toHexString()) as Exchange
-  exchange.token = token
+  exchange.tokenMeta = tokenMeta.id
+  exchange.currency = currency.id
+  exchange.createdAtTimestamp = event.block.timestamp
+  exchange.createdAtBlockNumber  = event.block.number
+  // exchange.lpFee = event.params.lpFee
 
+  exchange.save()
 }
 
 export function handleOwnershipTransferred(event: OwnershipTransferred): void {

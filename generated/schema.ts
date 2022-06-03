@@ -161,6 +161,124 @@ export class Currency extends Entity {
     }
   }
 
+  get poolCount(): BigInt {
+    let value = this.get("poolCount");
+    return value!.toBigInt();
+  }
+
+  set poolCount(value: BigInt) {
+    this.set("poolCount", Value.fromBigInt(value));
+  }
+
+  get totalValueLocked(): BigDecimal | null {
+    let value = this.get("totalValueLocked");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
+  }
+
+  set totalValueLocked(value: BigDecimal | null) {
+    if (!value) {
+      this.unset("totalValueLocked");
+    } else {
+      this.set("totalValueLocked", Value.fromBigDecimal(<BigDecimal>value));
+    }
+  }
+}
+
+export class TokenMeta extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save TokenMeta entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type TokenMeta must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set("TokenMeta", id.toString(), this);
+    }
+  }
+
+  static load(id: string): TokenMeta | null {
+    return changetype<TokenMeta | null>(store.get("TokenMeta", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value!.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get name(): string | null {
+    let value = this.get("name");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set name(value: string | null) {
+    if (!value) {
+      this.unset("name");
+    } else {
+      this.set("name", Value.fromString(<string>value));
+    }
+  }
+
+  get decimals(): BigInt | null {
+    let value = this.get("decimals");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set decimals(value: BigInt | null) {
+    if (!value) {
+      this.unset("decimals");
+    } else {
+      this.set("decimals", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get tokenIds(): Array<string> {
+    let value = this.get("tokenIds");
+    return value!.toStringArray();
+  }
+
+  set tokenIds(value: Array<string>) {
+    this.set("tokenIds", Value.fromStringArray(value));
+  }
+
+  get totalSupply(): BigInt | null {
+    let value = this.get("totalSupply");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set totalSupply(value: BigInt | null) {
+    if (!value) {
+      this.unset("totalSupply");
+    } else {
+      this.set("totalSupply", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
   get volume(): BigDecimal | null {
     let value = this.get("volume");
     if (!value || value.kind == ValueKind.NULL) {
@@ -244,123 +362,31 @@ export class Token extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get symbol(): string | null {
-    let value = this.get("symbol");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toString();
-    }
+  get buyPrice(): BigDecimal {
+    let value = this.get("buyPrice");
+    return value!.toBigDecimal();
   }
 
-  set symbol(value: string | null) {
-    if (!value) {
-      this.unset("symbol");
-    } else {
-      this.set("symbol", Value.fromString(<string>value));
-    }
+  set buyPrice(value: BigDecimal) {
+    this.set("buyPrice", Value.fromBigDecimal(value));
   }
 
-  get name(): string | null {
-    let value = this.get("name");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toString();
-    }
+  get sellPrice(): BigDecimal {
+    let value = this.get("sellPrice");
+    return value!.toBigDecimal();
   }
 
-  set name(value: string | null) {
-    if (!value) {
-      this.unset("name");
-    } else {
-      this.set("name", Value.fromString(<string>value));
-    }
+  set sellPrice(value: BigDecimal) {
+    this.set("sellPrice", Value.fromBigDecimal(value));
   }
 
-  get decimals(): BigInt | null {
-    let value = this.get("decimals");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigInt();
-    }
+  get spotPrice(): BigDecimal {
+    let value = this.get("spotPrice");
+    return value!.toBigDecimal();
   }
 
-  set decimals(value: BigInt | null) {
-    if (!value) {
-      this.unset("decimals");
-    } else {
-      this.set("decimals", Value.fromBigInt(<BigInt>value));
-    }
-  }
-
-  get totalSupply(): BigInt | null {
-    let value = this.get("totalSupply");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set totalSupply(value: BigInt | null) {
-    if (!value) {
-      this.unset("totalSupply");
-    } else {
-      this.set("totalSupply", Value.fromBigInt(<BigInt>value));
-    }
-  }
-
-  get volume(): BigDecimal | null {
-    let value = this.get("volume");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigDecimal();
-    }
-  }
-
-  set volume(value: BigDecimal | null) {
-    if (!value) {
-      this.unset("volume");
-    } else {
-      this.set("volume", Value.fromBigDecimal(<BigDecimal>value));
-    }
-  }
-
-  get poolCount(): BigInt | null {
-    let value = this.get("poolCount");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set poolCount(value: BigInt | null) {
-    if (!value) {
-      this.unset("poolCount");
-    } else {
-      this.set("poolCount", Value.fromBigInt(<BigInt>value));
-    }
-  }
-
-  get totalValueLocked(): BigDecimal | null {
-    let value = this.get("totalValueLocked");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigDecimal();
-    }
-  }
-
-  set totalValueLocked(value: BigDecimal | null) {
-    if (!value) {
-      this.unset("totalValueLocked");
-    } else {
-      this.set("totalValueLocked", Value.fromBigDecimal(<BigDecimal>value));
-    }
+  set spotPrice(value: BigDecimal) {
+    this.set("spotPrice", Value.fromBigDecimal(value));
   }
 }
 
@@ -395,47 +421,31 @@ export class Exchange extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get createdAtTimestamp(): BigInt | null {
+  get createdAtTimestamp(): BigInt {
     let value = this.get("createdAtTimestamp");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigInt();
-    }
+    return value!.toBigInt();
   }
 
-  set createdAtTimestamp(value: BigInt | null) {
-    if (!value) {
-      this.unset("createdAtTimestamp");
-    } else {
-      this.set("createdAtTimestamp", Value.fromBigInt(<BigInt>value));
-    }
+  set createdAtTimestamp(value: BigInt) {
+    this.set("createdAtTimestamp", Value.fromBigInt(value));
   }
 
-  get createdAtBlockNumber(): BigInt | null {
+  get createdAtBlockNumber(): BigInt {
     let value = this.get("createdAtBlockNumber");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigInt();
-    }
+    return value!.toBigInt();
   }
 
-  set createdAtBlockNumber(value: BigInt | null) {
-    if (!value) {
-      this.unset("createdAtBlockNumber");
-    } else {
-      this.set("createdAtBlockNumber", Value.fromBigInt(<BigInt>value));
-    }
+  set createdAtBlockNumber(value: BigInt) {
+    this.set("createdAtBlockNumber", Value.fromBigInt(value));
   }
 
-  get token(): string {
-    let value = this.get("token");
+  get tokenMeta(): string {
+    let value = this.get("tokenMeta");
     return value!.toString();
   }
 
-  set token(value: string) {
-    this.set("token", Value.fromString(value));
+  set tokenMeta(value: string) {
+    this.set("tokenMeta", Value.fromString(value));
   }
 
   get currency(): string {
@@ -447,46 +457,21 @@ export class Exchange extends Entity {
     this.set("currency", Value.fromString(value));
   }
 
-  get lpFee(): BigInt {
-    let value = this.get("lpFee");
+  get liquidity(): BigInt {
+    let value = this.get("liquidity");
     return value!.toBigInt();
   }
 
-  set lpFee(value: BigInt) {
-    this.set("lpFee", Value.fromBigInt(value));
+  set liquidity(value: BigInt) {
+    this.set("liquidity", Value.fromBigInt(value));
   }
 
-  get liquidity(): BigInt | null {
-    let value = this.get("liquidity");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set liquidity(value: BigInt | null) {
-    if (!value) {
-      this.unset("liquidity");
-    } else {
-      this.set("liquidity", Value.fromBigInt(<BigInt>value));
-    }
-  }
-
-  get txCount(): BigInt | null {
+  get txCount(): BigInt {
     let value = this.get("txCount");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigInt();
-    }
+    return value!.toBigInt();
   }
 
-  set txCount(value: BigInt | null) {
-    if (!value) {
-      this.unset("txCount");
-    } else {
-      this.set("txCount", Value.fromBigInt(<BigInt>value));
-    }
+  set txCount(value: BigInt) {
+    this.set("txCount", Value.fromBigInt(value));
   }
 }

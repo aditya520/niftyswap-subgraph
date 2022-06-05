@@ -55,6 +55,8 @@ type Token @entity{
   sellPrice: BigDecimal!
   # Spot Price
   spotPrice: BigDecimal!
+  # Token Amount
+  tokenAmount: BigInt!
 }
 
 type Exchange @entity {

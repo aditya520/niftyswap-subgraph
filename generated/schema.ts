@@ -388,6 +388,15 @@ export class Token extends Entity {
   set spotPrice(value: BigDecimal) {
     this.set("spotPrice", Value.fromBigDecimal(value));
   }
+
+  get tokenAmount(): BigInt {
+    let value = this.get("tokenAmount");
+    return value!.toBigInt();
+  }
+
+  set tokenAmount(value: BigInt) {
+    this.set("tokenAmount", Value.fromBigInt(value));
+  }
 }
 
 export class Exchange extends Entity {

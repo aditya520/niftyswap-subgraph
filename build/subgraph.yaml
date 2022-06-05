@@ -71,4 +71,4 @@ templates:
         - event: TokensPurchase(indexed address,indexed address,uint256[],uint256[],uint256[])
           handler: handleTokenPurchase
         - event: CurrencyPurchase(indexed address,indexed address,uint256[],uint256[],uint256[])
-          handler: handleTokenPurchase
+          handler: handleCurrencyPurchase

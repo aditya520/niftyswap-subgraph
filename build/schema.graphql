@@ -20,10 +20,8 @@ type Currency @entity {
   decimals: BigInt!
   # currency total supply
   totalSupply: BigInt
-  # volume in token units
-  volume: BigDecimal
   # number of Exchanges containing this currency
-  poolCount: BigInt
+  poolCount: BigInt!
   # liquidity across all Exchanges in token units
   totalValueLocked: BigDecimal
 }
@@ -49,25 +47,31 @@ type TokenMeta @entity {
 }
 
 type Token @entity{
-  # tokenId
+  # tokenId + "-" + tokenAddress + "-" + ExchangeAddress
   id: ID!
+  # Buy Price
+  buyPrice: BigDecimal!
+  # Sell Price
+  sellPrice: BigDecimal!
+  # Spot Price
+  spotPrice: BigDecimal!
+  # Token Amount
+  tokenAmount: BigInt!
 }
 
 type Exchange @entity {
   # exchange address
   id: ID!
   # creation
-  createdAtTimestamp: BigInt
+  createdAtTimestamp: BigInt!
   # block pool was created at
-  createdAtBlockNumber: BigInt
+  createdAtBlockNumber: BigInt!
   # token
   tokenMeta: TokenMeta!
   # currency
   currency: Currency!
-  # fee amount
-  lpFee: BigInt
   # in range liquidity
-  liquidity: BigInt
+  liquidity: BigInt!
   # all time number of transactions
-  txCount: BigInt
+  txCount: BigInt!
 }

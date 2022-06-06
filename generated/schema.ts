@@ -362,31 +362,55 @@ export class Token extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get buyPrice(): BigDecimal {
+  get buyPrice(): BigDecimal | null {
     let value = this.get("buyPrice");
-    return value!.toBigDecimal();
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
   }
 
-  set buyPrice(value: BigDecimal) {
-    this.set("buyPrice", Value.fromBigDecimal(value));
+  set buyPrice(value: BigDecimal | null) {
+    if (!value) {
+      this.unset("buyPrice");
+    } else {
+      this.set("buyPrice", Value.fromBigDecimal(<BigDecimal>value));
+    }
   }
 
-  get sellPrice(): BigDecimal {
+  get sellPrice(): BigDecimal | null {
     let value = this.get("sellPrice");
-    return value!.toBigDecimal();
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
   }
 
-  set sellPrice(value: BigDecimal) {
-    this.set("sellPrice", Value.fromBigDecimal(value));
+  set sellPrice(value: BigDecimal | null) {
+    if (!value) {
+      this.unset("sellPrice");
+    } else {
+      this.set("sellPrice", Value.fromBigDecimal(<BigDecimal>value));
+    }
   }
 
-  get spotPrice(): BigDecimal {
+  get spotPrice(): BigDecimal | null {
     let value = this.get("spotPrice");
-    return value!.toBigDecimal();
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigDecimal();
+    }
   }
 
-  set spotPrice(value: BigDecimal) {
-    this.set("spotPrice", Value.fromBigDecimal(value));
+  set spotPrice(value: BigDecimal | null) {
+    if (!value) {
+      this.unset("spotPrice");
+    } else {
+      this.set("spotPrice", Value.fromBigDecimal(<BigDecimal>value));
+    }
   }
 
   get tokenAmount(): BigInt {
@@ -399,7 +423,7 @@ export class Token extends Entity {
   }
 }
 
-export class Exchange extends Entity {
+export class NiftyswapExchange extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
@@ -407,18 +431,20 @@ export class Exchange extends Entity {
 
   save(): void {
     let id = this.get("id");
-    assert(id != null, "Cannot save Exchange entity without an ID");
+    assert(id != null, "Cannot save NiftyswapExchange entity without an ID");
     if (id) {
       assert(
         id.kind == ValueKind.STRING,
-        `Entities of type Exchange must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type NiftyswapExchange must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`
       );
-      store.set("Exchange", id.toString(), this);
+      store.set("NiftyswapExchange", id.toString(), this);
     }
   }
 
-  static load(id: string): Exchange | null {
-    return changetype<Exchange | null>(store.get("Exchange", id));
+  static load(id: string): NiftyswapExchange | null {
+    return changetype<NiftyswapExchange | null>(
+      store.get("NiftyswapExchange", id)
+    );
   }
 
   get id(): string {

@@ -50,16 +50,16 @@ type Token @entity{
   # tokenId + "-" + tokenAddress + "-" + ExchangeAddress
   id: ID!
   # Buy Price
-  buyPrice: BigDecimal!
+  buyPrice: BigDecimal
   # Sell Price
-  sellPrice: BigDecimal!
+  sellPrice: BigDecimal
   # Spot Price
-  spotPrice: BigDecimal!
+  spotPrice: BigDecimal
   # Token Amount
   tokenAmount: BigInt!
 }
 
-type Exchange @entity {
+type NiftyswapExchange @entity {
   # exchange address
   id: ID!
   # creation

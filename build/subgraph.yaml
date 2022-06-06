@@ -16,7 +16,7 @@ dataSources:
       language: wasm/assemblyscript
       file: NiftyswapFactory/NiftyswapFactory.wasm
       entities:
-        - Exchange
+        - NiftyswapExchange
         - Currency
         - Token
         - TokenMeta
@@ -50,7 +50,7 @@ templates:
       language: wasm/assemblyscript
       file: templates/NiftyswapExchange/NiftyswapExchange.wasm
       entities:
-        - Exchange
+        - NiftyswapExchange
         - Token
         - Currency
         - TokenMeta

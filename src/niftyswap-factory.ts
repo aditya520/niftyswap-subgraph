@@ -1,12 +1,12 @@
-import { Currency, Token, TokenMeta } from './../generated/schema';
 import { FACTORY_ADDRESS } from './utils/constants';
-import { BigInt } from "@graphprotocol/graph-ts"
+import { BigInt, log } from "@graphprotocol/graph-ts"
 import {
   NiftyswapFactory,
   NewExchange,
   OwnershipTransferred
 } from "../generated/NiftyswapFactory/NiftyswapFactory"
-import { Factory, Exchange } from "../generated/schema"
+import { Factory, NiftyswapExchange,Currency, Token, TokenMeta } from "../generated/schema"
+import { NiftyswapExchange as Exchange} from '../generated/templates'
 import { ADDRESS_ZERO } from './utils/constants';
 import { fetchCurrencyDecimals } from './utils/currency';
 
@@ -46,14 +46,19 @@ export function handleNewExchange(event: NewExchange): void {
   }
   tokenMeta.save()
 
-  let exchange = new Exchange(event.params.exchange.toHexString()) as Exchange
-  exchange.tokenMeta = tokenMeta.id
-  exchange.currency = currency.id
-  exchange.createdAtTimestamp = event.block.timestamp
-  exchange.createdAtBlockNumber  = event.block.number
-  exchange.liquidity = BigInt.fromI32(0)
-  exchange.txCount = BigInt.fromI32(0)
-  exchange.save()
+  let niftyswapExchange = new NiftyswapExchange(event.params.exchange.toHexString()) as NiftyswapExchange
+  
+  niftyswapExchange.tokenMeta = tokenMeta.id
+  niftyswapExchange.currency = currency.id
+  niftyswapExchange.createdAtTimestamp = event.block.timestamp
+  niftyswapExchange.createdAtBlockNumber  = event.block.number
+  niftyswapExchange.liquidity = BigInt.fromI32(0)
+  niftyswapExchange.txCount = BigInt.fromI32(0)
+  log.error("Saving exchange: {}",[niftyswapExchange.id])
+  log.error("Events ID: {}",[event.params.exchange.toHexString()])
+  Exchange.create(event.params.exchange)
+  log.error("Saved exchange: {}",[event.params.exchange.toHexString()])
+  niftyswapExchange.save()
 }
 
 export function handleOwnershipTransferred(event: OwnershipTransferred): void {

@@ -1,7 +1,7 @@
 {
-  "matic": {
+  "rinkeby": {
     "NiftyswapFactory": {
-      "address": "0xbB62bFe0ba9eFD3f6f0DFA5dA66fCeF4F4259949"
+      "address": "0x9196b852437D9Ed92d95715dCbdA4533ffC479E0"
     }
   }
 }

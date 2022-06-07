@@ -1,5 +1,5 @@
 specVersion: 0.0.4
-description: Niftyswap Test.
+description: Niftyswap Test Rinkeby.
 schema:
   file: ./schema.graphql
 dataSources:

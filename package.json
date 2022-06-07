@@ -1,5 +1,5 @@
 {
-  "name": "niftyswapTest",
+  "name": "niftyswap-rinkeby",
   "license": "UNLICENSED",
   "scripts": {
     "codegen": "graph codegen",

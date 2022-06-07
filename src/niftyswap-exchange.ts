@@ -63,7 +63,7 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
     }
     token.tokenAmount = token.tokenAmount.minus(event.params.tokenAmounts[i]);
     token.currencyReserve = token.currencyReserve.minus(
-      event.params.currencyAmounts[i]
+      event.params.details[i].currencyAmount
     );
     token.save();
   }

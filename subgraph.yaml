@@ -5,11 +5,11 @@ schema:
 dataSources:
   - kind: ethereum
     name: NiftyswapFactory
-    network: matic
+    network: rinkeby
     source:
-      address: "0xbB62bFe0ba9eFD3f6f0DFA5dA66fCeF4F4259949"
+      address: "0x9196b852437D9Ed92d95715dCbdA4533ffC479E0"
       abi: NiftyswapFactory
-      startBlock: 21750456
+      startBlock: 10705021
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.5
@@ -34,14 +34,14 @@ dataSources:
         - name: ERC1155
           file: ./abis/ERC1155.json
       eventHandlers:
-        - event: NewExchange(indexed address,indexed address,indexed uint256,address)
+        - event: NewExchange(indexed address,indexed address,indexed uint256,uint256,address)
           handler: handleNewExchange
         - event: OwnershipTransferred(indexed address,indexed address)
           handler: handleOwnershipTransferred
 templates:
   - kind: ethereum/contract
     name: NiftyswapExchange
-    network: matic
+    network: rinkeby
     source:
       abi: NiftyswapExchange
     mapping:
@@ -66,9 +66,9 @@ templates:
       eventHandlers:
         - event: LiquidityAdded(indexed address,uint256[],uint256[],uint256[])
           handler: handleLiquidityAdded
-        - event: LiquidityRemoved(indexed address,uint256[],uint256[],uint256[])
+        - event: LiquidityRemoved(indexed address,uint256[],uint256[],(uint256,uint256,uint256,uint256)[])
           handler: handleLiquidityRemoved
-        - event: TokensPurchase(indexed address,indexed address,uint256[],uint256[],uint256[])
+        - event: TokensPurchase(indexed address,indexed address,uint256[],uint256[],uint256[],address[],uint256[])
           handler: handleTokenPurchase
-        - event: CurrencyPurchase(indexed address,indexed address,uint256[],uint256[],uint256[])
+        - event: CurrencyPurchase(indexed address,indexed address,uint256[],uint256[],uint256[],address[],uint256[])
           handler: handleCurrencyPurchase

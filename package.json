@@ -4,10 +4,10 @@
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ aditya520/niftyswapTest",
-    "create-local": "graph create --node http://localhost:8020/ aditya520/niftyswapTest",
-    "remove-local": "graph remove --node http://localhost:8020/ aditya520/niftyswapTest",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 aditya520/niftyswapTest"
+    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ aditya520/niftyswap-rinkeby",
+    "create-local": "graph create --node http://localhost:8020/ aditya520/niftyswap-rinkeby",
+    "remove-local": "graph remove --node http://localhost:8020/ aditya520/niftyswap-rinkeby",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 aditya520/niftyswap-rinkeby"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.30.2",

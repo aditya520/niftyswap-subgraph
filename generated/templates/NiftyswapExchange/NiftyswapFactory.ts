@@ -10,6 +10,24 @@ import {
   BigInt
 } from "@graphprotocol/graph-ts";
 
+export class MetadataContractChanged extends ethereum.Event {
+  get params(): MetadataContractChanged__Params {
+    return new MetadataContractChanged__Params(this);
+  }
+}
+
+export class MetadataContractChanged__Params {
+  _event: MetadataContractChanged;
+
+  constructor(event: MetadataContractChanged) {
+    this._event = event;
+  }
+
+  get metadataContract(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+}
+
 export class NewExchange extends ethereum.Event {
   get params(): NewExchange__Params {
     return new NewExchange__Params(this);
@@ -35,8 +53,12 @@ export class NewExchange__Params {
     return this._event.parameters[2].value.toBigInt();
   }
 
+  get lpFee(): BigInt {
+    return this._event.parameters[3].value.toBigInt();
+  }
+
   get exchange(): Address {
-    return this._event.parameters[3].value.toAddress();
+    return this._event.parameters[4].value.toAddress();
   }
 }
 
@@ -114,14 +136,43 @@ export class NiftyswapFactory extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddressArray());
   }
 
-  tokensToExchange(param0: Address, param1: Address, param2: BigInt): Address {
+  metadataProvider(): Address {
+    let result = super.call(
+      "metadataProvider",
+      "metadataProvider():(address)",
+      []
+    );
+
+    return result[0].toAddress();
+  }
+
+  try_metadataProvider(): ethereum.CallResult<Address> {
+    let result = super.tryCall(
+      "metadataProvider",
+      "metadataProvider():(address)",
+      []
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
+  }
+
+  tokensToExchange(
+    param0: Address,
+    param1: Address,
+    param2: BigInt,
+    param3: BigInt
+  ): Address {
     let result = super.call(
       "tokensToExchange",
-      "tokensToExchange(address,address,uint256):(address)",
+      "tokensToExchange(address,address,uint256,uint256):(address)",
       [
         ethereum.Value.fromAddress(param0),
         ethereum.Value.fromAddress(param1),
-        ethereum.Value.fromUnsignedBigInt(param2)
+        ethereum.Value.fromUnsignedBigInt(param2),
+        ethereum.Value.fromUnsignedBigInt(param3)
       ]
     );
 
@@ -131,15 +182,17 @@ export class NiftyswapFactory extends ethereum.SmartContract {
   try_tokensToExchange(
     param0: Address,
     param1: Address,
-    param2: BigInt
+    param2: BigInt,
+    param3: BigInt
   ): ethereum.CallResult<Address> {
     let result = super.tryCall(
       "tokensToExchange",
-      "tokensToExchange(address,address,uint256):(address)",
+      "tokensToExchange(address,address,uint256,uint256):(address)",
       [
         ethereum.Value.fromAddress(param0),
         ethereum.Value.fromAddress(param1),
-        ethereum.Value.fromUnsignedBigInt(param2)
+        ethereum.Value.fromUnsignedBigInt(param2),
+        ethereum.Value.fromUnsignedBigInt(param3)
       ]
     );
     if (result.reverted) {
@@ -205,8 +258,12 @@ export class CreateExchangeCall__Inputs {
     return this._call.inputValues[1].value.toAddress();
   }
 
-  get _instance(): BigInt {
+  get _lpFee(): BigInt {
     return this._call.inputValues[2].value.toBigInt();
+  }
+
+  get _instance(): BigInt {
+    return this._call.inputValues[3].value.toBigInt();
   }
 }
 
@@ -214,6 +271,36 @@ export class CreateExchangeCall__Outputs {
   _call: CreateExchangeCall;
 
   constructor(call: CreateExchangeCall) {
+    this._call = call;
+  }
+}
+
+export class SetMetadataContractCall extends ethereum.Call {
+  get inputs(): SetMetadataContractCall__Inputs {
+    return new SetMetadataContractCall__Inputs(this);
+  }
+
+  get outputs(): SetMetadataContractCall__Outputs {
+    return new SetMetadataContractCall__Outputs(this);
+  }
+}
+
+export class SetMetadataContractCall__Inputs {
+  _call: SetMetadataContractCall;
+
+  constructor(call: SetMetadataContractCall) {
+    this._call = call;
+  }
+
+  get _contract(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+}
+
+export class SetMetadataContractCall__Outputs {
+  _call: SetMetadataContractCall;
+
+  constructor(call: SetMetadataContractCall) {
     this._call = call;
   }
 }

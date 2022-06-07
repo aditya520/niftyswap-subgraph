@@ -68,6 +68,14 @@ export class CurrencyPurchase__Params {
   get currencyBoughtAmounts(): Array<BigInt> {
     return this._event.parameters[4].value.toBigIntArray();
   }
+
+  get extraFeeRecipients(): Array<Address> {
+    return this._event.parameters[5].value.toAddressArray();
+  }
+
+  get extraFeeAmounts(): Array<BigInt> {
+    return this._event.parameters[6].value.toBigIntArray();
+  }
 }
 
 export class LiquidityAdded extends ethereum.Event {
@@ -125,8 +133,28 @@ export class LiquidityRemoved__Params {
     return this._event.parameters[2].value.toBigIntArray();
   }
 
-  get currencyAmounts(): Array<BigInt> {
-    return this._event.parameters[3].value.toBigIntArray();
+  get details(): Array<LiquidityRemovedDetailsStruct> {
+    return this._event.parameters[3].value.toTupleArray<
+      LiquidityRemovedDetailsStruct
+    >();
+  }
+}
+
+export class LiquidityRemovedDetailsStruct extends ethereum.Tuple {
+  get currencyAmount(): BigInt {
+    return this[0].toBigInt();
+  }
+
+  get soldTokenNumerator(): BigInt {
+    return this[1].toBigInt();
+  }
+
+  get boughtCurrencyNumerator(): BigInt {
+    return this[2].toBigInt();
+  }
+
+  get totalSupply(): BigInt {
+    return this[3].toBigInt();
   }
 }
 
@@ -205,6 +233,14 @@ export class TokensPurchase__Params {
 
   get currencySoldAmounts(): Array<BigInt> {
     return this._event.parameters[4].value.toBigIntArray();
+  }
+
+  get extraFeeRecipients(): Array<Address> {
+    return this._event.parameters[5].value.toAddressArray();
+  }
+
+  get extraFeeAmounts(): Array<BigInt> {
+    return this._event.parameters[6].value.toBigIntArray();
   }
 }
 
@@ -621,6 +657,21 @@ export class NiftyswapExchange extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
+  getLPFee(): BigInt {
+    let result = super.call("getLPFee", "getLPFee():(uint256)", []);
+
+    return result[0].toBigInt();
+  }
+
+  try_getLPFee(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall("getLPFee", "getLPFee():(uint256)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
   getOwner(): Address {
     let result = super.call("getOwner", "getOwner():(address)", []);
 
@@ -718,6 +769,31 @@ export class NiftyswapExchange extends ethereum.SmartContract {
     let result = super.tryCall(
       "getRoyalties",
       "getRoyalties(address):(uint256)",
+      [ethereum.Value.fromAddress(_royaltyRecipient)]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  getRoyaltiesNumerator(_royaltyRecipient: Address): BigInt {
+    let result = super.call(
+      "getRoyaltiesNumerator",
+      "getRoyaltiesNumerator(address):(uint256)",
+      [ethereum.Value.fromAddress(_royaltyRecipient)]
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_getRoyaltiesNumerator(
+    _royaltyRecipient: Address
+  ): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "getRoyaltiesNumerator",
+      "getRoyaltiesNumerator(address):(uint256)",
       [ethereum.Value.fromAddress(_royaltyRecipient)]
     );
     if (result.reverted) {
@@ -1046,6 +1122,25 @@ export class NiftyswapExchange extends ethereum.SmartContract {
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toBoolean());
   }
+
+  uri(_id: BigInt): string {
+    let result = super.call("uri", "uri(uint256):(string)", [
+      ethereum.Value.fromUnsignedBigInt(_id)
+    ]);
+
+    return result[0].toString();
+  }
+
+  try_uri(_id: BigInt): ethereum.CallResult<string> {
+    let result = super.tryCall("uri", "uri(uint256):(string)", [
+      ethereum.Value.fromUnsignedBigInt(_id)
+    ]);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toString());
+  }
 }
 
 export class ConstructorCall extends ethereum.Call {
@@ -1071,6 +1166,10 @@ export class ConstructorCall__Inputs {
 
   get _currencyAddr(): Address {
     return this._call.inputValues[1].value.toAddress();
+  }
+
+  get _lpFee(): BigInt {
+    return this._call.inputValues[2].value.toBigInt();
   }
 }
 

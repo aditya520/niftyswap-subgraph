@@ -18,12 +18,12 @@ type Currency @entity {
   name: String
   # currency decimals
   decimals: BigInt!
-  # currency total supply
-  totalSupply: BigInt
   # number of Exchanges containing this currency
   poolCount: BigInt!
   # liquidity across all Exchanges in token units
   totalValueLocked: BigDecimal
+  # Exchange
+  exchange: NiftyswapExchange!
 }
 
 type TokenMeta @entity {
@@ -43,20 +43,21 @@ type TokenMeta @entity {
   poolCount: BigInt
   # liquidity across all Exchanges in token units
   totalValueLocked: BigDecimal
-  # tokens
 }
 
 type Token @entity{
   # tokenId + "-" + tokenAddress + "-" + ExchangeAddress
   id: ID!
-  # Buy Price
-  buyPrice: BigDecimal
-  # Sell Price
-  sellPrice: BigDecimal
+  # # Buy Price
+  # buyPrice: BigDecimal
+  # # Sell Price
+  # sellPrice: BigDecimal
   # Spot Price
   spotPrice: BigDecimal
   # Token Amount
   tokenAmount: BigInt!
+  # Currency Reserve
+  currencyReserve: BigInt!
 }
 
 type NiftyswapExchange @entity {
@@ -69,7 +70,7 @@ type NiftyswapExchange @entity {
   # token
   tokenMeta: TokenMeta!
   # currency
-  currency: Currency!
+  currency: Currency! @derivedFrom(field: "exchange")
   # in range liquidity
   liquidity: BigInt!
   # all time number of transactions

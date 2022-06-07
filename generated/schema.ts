@@ -144,23 +144,6 @@ export class Currency extends Entity {
     this.set("decimals", Value.fromBigInt(value));
   }
 
-  get totalSupply(): BigInt | null {
-    let value = this.get("totalSupply");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigInt();
-    }
-  }
-
-  set totalSupply(value: BigInt | null) {
-    if (!value) {
-      this.unset("totalSupply");
-    } else {
-      this.set("totalSupply", Value.fromBigInt(<BigInt>value));
-    }
-  }
-
   get poolCount(): BigInt {
     let value = this.get("poolCount");
     return value!.toBigInt();
@@ -185,6 +168,15 @@ export class Currency extends Entity {
     } else {
       this.set("totalValueLocked", Value.fromBigDecimal(<BigDecimal>value));
     }
+  }
+
+  get exchange(): string {
+    let value = this.get("exchange");
+    return value!.toString();
+  }
+
+  set exchange(value: string) {
+    this.set("exchange", Value.fromString(value));
   }
 }
 
@@ -362,40 +354,6 @@ export class Token extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get buyPrice(): BigDecimal | null {
-    let value = this.get("buyPrice");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigDecimal();
-    }
-  }
-
-  set buyPrice(value: BigDecimal | null) {
-    if (!value) {
-      this.unset("buyPrice");
-    } else {
-      this.set("buyPrice", Value.fromBigDecimal(<BigDecimal>value));
-    }
-  }
-
-  get sellPrice(): BigDecimal | null {
-    let value = this.get("sellPrice");
-    if (!value || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigDecimal();
-    }
-  }
-
-  set sellPrice(value: BigDecimal | null) {
-    if (!value) {
-      this.unset("sellPrice");
-    } else {
-      this.set("sellPrice", Value.fromBigDecimal(<BigDecimal>value));
-    }
-  }
-
   get spotPrice(): BigDecimal | null {
     let value = this.get("spotPrice");
     if (!value || value.kind == ValueKind.NULL) {
@@ -420,6 +378,15 @@ export class Token extends Entity {
 
   set tokenAmount(value: BigInt) {
     this.set("tokenAmount", Value.fromBigInt(value));
+  }
+
+  get currencyReserve(): BigInt {
+    let value = this.get("currencyReserve");
+    return value!.toBigInt();
+  }
+
+  set currencyReserve(value: BigInt) {
+    this.set("currencyReserve", Value.fromBigInt(value));
   }
 }
 

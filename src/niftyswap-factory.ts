@@ -36,7 +36,7 @@ export function handleNewExchange(event: NewExchange): void {
     currency.decimals = decimals
   }
   currency.poolCount = currency.poolCount.plus(BigInt.fromI32(1))
-  currency.save()
+  
 
   // Saving ERC1155 token to the store
   let tokenMeta = TokenMeta.load(event.params.token.toHexString())
@@ -49,16 +49,16 @@ export function handleNewExchange(event: NewExchange): void {
   let niftyswapExchange = new NiftyswapExchange(event.params.exchange.toHexString()) as NiftyswapExchange
   
   niftyswapExchange.tokenMeta = tokenMeta.id
-  niftyswapExchange.currency = currency.id
+  // niftyswapExchange.currency = currency.id
   niftyswapExchange.createdAtTimestamp = event.block.timestamp
   niftyswapExchange.createdAtBlockNumber  = event.block.number
   niftyswapExchange.liquidity = BigInt.fromI32(0)
   niftyswapExchange.txCount = BigInt.fromI32(0)
-  log.error("Saving exchange: {}",[niftyswapExchange.id])
-  log.error("Events ID: {}",[event.params.exchange.toHexString()])
   Exchange.create(event.params.exchange)
-  log.error("Saved exchange: {}",[event.params.exchange.toHexString()])
   niftyswapExchange.save()
+
+  currency.exchange = niftyswapExchange.id
+  currency.save()
 }
 
 export function handleOwnershipTransferred(event: OwnershipTransferred): void {

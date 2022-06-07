@@ -28,7 +28,11 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
     if (token == null) {
       token = new Token(tokenConId);
       token.tokenAmount = BigInt.fromI32(0);
+      token.currencyReserve = BigInt.fromI32(0);
     }
+    token.currencyReserve = token.currencyReserve.plus(
+      event.params.currencyAmounts[i]
+    );
     token.tokenAmount = token.tokenAmount.plus(event.params.tokenAmounts[i]);
     token.save();
   }
@@ -58,6 +62,9 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
       return;
     }
     token.tokenAmount = token.tokenAmount.minus(event.params.tokenAmounts[i]);
+    token.currencyReserve = token.currencyReserve.minus(
+      event.params.currencyAmounts[i]
+    );
     token.save();
   }
   niftyswapExchange.txCount = niftyswapExchange.txCount.plus(BigInt.fromI32(1));
@@ -89,6 +96,9 @@ export function handleTokenPurchase(event: TokensPurchase): void {
     token.tokenAmount = token.tokenAmount.minus(
       event.params.tokensBoughtAmounts[i]
     );
+    token.currencyReserve = token.currencyReserve.plus(
+      event.params.currencySoldAmounts[i]
+    );
     token.save();
   }
   exchange.txCount = exchange.txCount.plus(BigInt.fromI32(1));
@@ -119,6 +129,9 @@ export function handleCurrencyPurchase(event: CurrencyPurchase): void {
     }
     token.tokenAmount = token.tokenAmount.plus(
       event.params.tokensSoldAmounts[i]
+    );
+    token.currencyReserve = token.currencyReserve.minus(
+      event.params.currencyBoughtAmounts[i]
     );
     token.save();
   }

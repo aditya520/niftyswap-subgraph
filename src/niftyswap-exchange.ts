@@ -93,11 +93,11 @@ export function handleTokenPurchase(event: TokensPurchase): void {
       log.error("Token not found: ", [tokenConId]);
       return;
     }
+    token.currencyReserve = token.currencyReserve.plus(
+      event.params.tokensBoughtAmounts[i].times(token.tokenAmount.div(token.currencyReserve))
+    );
     token.tokenAmount = token.tokenAmount.minus(
       event.params.tokensBoughtAmounts[i]
-    );
-    token.currencyReserve = token.currencyReserve.plus(
-      event.params.currencySoldAmounts[i]
     );
     token.save();
   }

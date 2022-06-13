@@ -388,6 +388,23 @@ export class Token extends Entity {
   set currencyReserve(value: BigInt) {
     this.set("currencyReserve", Value.fromBigInt(value));
   }
+
+  get royalty(): BigInt | null {
+    let value = this.get("royalty");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set royalty(value: BigInt | null) {
+    if (!value) {
+      this.unset("royalty");
+    } else {
+      this.set("royalty", Value.fromBigInt(<BigInt>value));
+    }
+  }
 }
 
 export class NiftyswapExchange extends Entity {

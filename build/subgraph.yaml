@@ -1,0 +1,77 @@
+specVersion: 0.0.4
+description: Niftyswap Test Rinkeby.
+schema:
+  file: schema.graphql
+dataSources:
+  - kind: ethereum
+    name: NiftyswapFactory
+    network: rinkeby
+    source:
+      address: "0x9196b852437D9Ed92d95715dCbdA4533ffC479E0"
+      abi: NiftyswapFactory
+      startBlock: 10705021
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: NiftyswapFactory/NiftyswapFactory.wasm
+      entities:
+        - NiftyswapExchange
+        - Currency
+        - Token
+        - TokenMeta
+      abis:
+        - name: NiftyswapFactory
+          file: NiftyswapFactory/abis/NiftyswapFactory20.json
+        - name: NiftyswapExchange
+          file: NiftyswapFactory/abis/NiftyswapExchange20.json
+        - name: ERC20
+          file: NiftyswapFactory/abis/ERC20.json
+        - name: ERC20SymbolBytes
+          file: NiftyswapFactory/abis/ERC20SymbolBytes.json
+        - name: ERC20NameBytes
+          file: NiftyswapFactory/abis/ERC20NameBytes.json
+        - name: ERC1155
+          file: NiftyswapFactory/abis/ERC1155.json
+      eventHandlers:
+        - event: NewExchange(indexed address,indexed address,indexed uint256,uint256,address)
+          handler: handleNewExchange
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+templates:
+  - kind: ethereum/contract
+    name: NiftyswapExchange
+    network: rinkeby
+    source:
+      abi: NiftyswapExchange
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.5
+      language: wasm/assemblyscript
+      file: templates/NiftyswapExchange/NiftyswapExchange.wasm
+      entities:
+        - NiftyswapExchange
+        - Token
+        - Currency
+        - TokenMeta
+      abis:
+        - name: NiftyswapExchange
+          file: NiftyswapExchange/abis/NiftyswapExchange20.json
+        - name: NiftyswapFactory
+          file: NiftyswapExchange/abis/NiftyswapFactory20.json
+        - name: ERC20
+          file: NiftyswapExchange/abis/ERC20.json
+        - name: ERC1155
+          file: NiftyswapExchange/abis/ERC1155.json
+      eventHandlers:
+        - event: LiquidityAdded(indexed address,uint256[],uint256[],uint256[])
+          handler: handleLiquidityAdded
+        - event: LiquidityRemoved(indexed
+            address,uint256[],uint256[],(uint256,uint256,uint256,uint256)[])
+          handler: handleLiquidityRemoved
+        - event: TokensPurchase(indexed address,indexed
+            address,uint256[],uint256[],uint256[],address[],uint256[])
+          handler: handleTokenPurchase
+        - event: CurrencyPurchase(indexed address,indexed
+            address,uint256[],uint256[],uint256[],address[],uint256[])
+          handler: handleCurrencyPurchase

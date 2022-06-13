@@ -29,10 +29,16 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
       token = new Token(tokenConId);
       token.tokenAmount = BigInt.fromI32(0);
       token.currencyReserve = BigInt.fromI32(0);
+      token.currencyReserve = token.currencyReserve.plus(
+        event.params.currencyAmounts[i]
+      );
+    } else {
+      log.error("Token found: ",[token.id]);
+      let numerator = event.params.currencyAmounts[i].times(token.currencyReserve) as BigInt
+      let denominator = token.tokenAmount.minus(event.params.tokenAmounts[i]) as BigInt
+      let reserve = divRound(numerator, denominator)
+      token.currencyReserve = token.currencyReserve.plus(reserve);
     }
-    token.currencyReserve = token.currencyReserve.plus(
-      event.params.currencyAmounts[i]
-    );
     token.tokenAmount = token.tokenAmount.plus(event.params.tokenAmounts[i]);
     token.save();
   }
@@ -93,26 +99,26 @@ export function handleTokenPurchase(event: TokensPurchase): void {
       log.error("Token not found: ", [tokenConId]);
       return;
     }
-    // token.currencyReserveTest = token.currencyReserveTest.plus(
-    //   event.params.tokensBoughtAmounts[i].times(token.currencyReserve.div(token.tokenAmount))
-    // );
-   
-    let currencyReserve = token.currencyReserve as BigInt
-    let amountBought = event.params.tokensBoughtAmounts[i] as BigInt
-    let tokenAmount = token.tokenAmount as BigInt
-    let lpFee = exchange.lpFee
 
-    let numerator = currencyReserve.times(amountBought).times(BigInt.fromI32(100))
-    let denominator = (tokenAmount.minus(amountBought)).times(BigInt.fromI32(100).minus(lpFee))
+    let currencyReserve = token.currencyReserve as BigInt;
+    let amountBought = event.params.tokensBoughtAmounts[i] as BigInt;
+    let tokenAmount = token.tokenAmount as BigInt;
+    let lpFee = exchange.lpFee;
 
-    let buyPrice = divRound(numerator, denominator)
-    
+    let numerator = currencyReserve
+      .times(amountBought)
+      .times(BigInt.fromI32(100));
+    let denominator = tokenAmount
+      .minus(amountBought)
+      .times(BigInt.fromI32(100).minus(lpFee));
+
+    let buyPrice = divRound(numerator, denominator);
 
     token.tokenAmount = token.tokenAmount.minus(
       event.params.tokensBoughtAmounts[i]
     );
 
-    token.currencyReserve = token.currencyReserve.plus(buyPrice); 
+    token.currencyReserve = token.currencyReserve.plus(buyPrice);
     token.save();
   }
   exchange.txCount = exchange.txCount.plus(BigInt.fromI32(1));
@@ -142,32 +148,33 @@ export function handleCurrencyPurchase(event: CurrencyPurchase): void {
       return;
     }
 
-
-    let currencyReserve = token.currencyReserve as BigInt
-    let amountSold = event.params.tokensSoldAmounts[i] as BigInt
-    let tokenReserve = token.tokenAmount as BigInt
+    let currencyReserve = token.currencyReserve as BigInt;
+    let amountSold = event.params.tokensSoldAmounts[i] as BigInt;
+    let tokenReserve = token.tokenAmount as BigInt;
     let lpFee = exchange.lpFee as BigInt;
 
-    let numerator = currencyReserve.times(tokenReserve).times(BigInt.fromI32(1000).minus(lpFee))
-    let denominator = tokenReserve.times(BigInt.fromI32(1000)).plus(tokenReserve.times(BigInt.fromI32(1000).minus(lpFee)))
+    let numerator = currencyReserve
+      .times(tokenReserve)
+      .times(BigInt.fromI32(1000).minus(lpFee));
+    let denominator = tokenReserve
+      .times(BigInt.fromI32(1000))
+      .plus(tokenReserve.times(BigInt.fromI32(1000).minus(lpFee)));
 
-    let sellPrice = numerator.div(denominator)
+    let sellPrice = numerator.div(denominator);
     // let sellPrice =(token.currencyReserve[i]*tokenReserve*(1000-lpFee))/(((tokenReserve * 1000) + tokenReserve*(1000-lpFee)))
-    
-
 
     token.tokenAmount = token.tokenAmount.plus(
       event.params.tokensSoldAmounts[i]
     );
-    token.currencyReserve = token.currencyReserve.minus(
-      sellPrice
-    );
+    token.currencyReserve = token.currencyReserve.minus(sellPrice);
     token.save();
   }
   exchange.txCount = exchange.txCount.plus(BigInt.fromI32(1));
   exchange.save();
 }
 
-function divRound(a: BigInt, b: BigInt):  BigInt  {
-  return a.mod(b).equals(BigInt.fromI32(0)) ? a.div(b) : (a.div(b)).plus(BigInt.fromI32(1));
+function divRound(a: BigInt, b: BigInt): BigInt {
+  return a.mod(b).equals(BigInt.fromI32(0))
+    ? a.div(b)
+    : a.div(b).plus(BigInt.fromI32(1));
 }

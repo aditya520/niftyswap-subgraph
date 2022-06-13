@@ -93,12 +93,22 @@ export function handleTokenPurchase(event: TokensPurchase): void {
       log.error("Token not found: ", [tokenConId]);
       return;
     }
+    // token.currencyReserveTest = token.currencyReserveTest.plus(
+    //   event.params.tokensBoughtAmounts[i].times(token.currencyReserve.div(token.tokenAmount))
+    // );
+   
+    let amountBought = event.params.tokensBoughtAmounts[i] as any
+    let tokenAmount = token.tokenAmount as any
+    let lpFee = exchange.lpFee as any;
+
+    let buyPrice =divRound(token.currencyReserve[i]*amountBought*100,((tokenAmount - amountBought)*(1000-lpFee)))
+    
+
     token.tokenAmount = token.tokenAmount.minus(
       event.params.tokensBoughtAmounts[i]
     );
-    token.currencyReserve = token.currencyReserve.plus(
-      event.params.currencySoldAmounts[i]
-    );
+
+    token.currencyReserve = token.currencyReserve.plus(BigInt.fromI32(buyPrice)); 
     token.save();
   }
   exchange.txCount = exchange.txCount.plus(BigInt.fromI32(1));
@@ -127,14 +137,28 @@ export function handleCurrencyPurchase(event: CurrencyPurchase): void {
       log.error("Token not found: ", [tokenConId]);
       return;
     }
+
+
+    let amountSold = event.params.tokensSoldAmounts[i] as any
+    let tokenReserve = token.tokenAmount as any
+    let lpFee = exchange.lpFee as any;
+
+    let sellPrice =(token.currencyReserve[i]*tokenReserve*(1000-lpFee))/(((tokenReserve * 1000) + tokenReserve*(1000-lpFee)))
+    
+
+
     token.tokenAmount = token.tokenAmount.plus(
       event.params.tokensSoldAmounts[i]
     );
     token.currencyReserve = token.currencyReserve.minus(
-      event.params.currencyBoughtAmounts[i]
+      BigInt.fromI32(sellPrice)
     );
     token.save();
   }
   exchange.txCount = exchange.txCount.plus(BigInt.fromI32(1));
   exchange.save();
+}
+
+function divRound(a: any, b: any) {
+  return a % b === 0 ? a / b : (a / b) + 1;
 }

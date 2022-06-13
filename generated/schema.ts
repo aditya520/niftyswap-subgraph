@@ -476,4 +476,13 @@ export class NiftyswapExchange extends Entity {
   set txCount(value: BigInt) {
     this.set("txCount", Value.fromBigInt(value));
   }
+
+  get lpFee(): BigInt {
+    let value = this.get("lpFee");
+    return value!.toBigInt();
+  }
+
+  set lpFee(value: BigInt) {
+    this.set("lpFee", Value.fromBigInt(value));
+  }
 }

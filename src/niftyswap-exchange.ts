@@ -33,10 +33,16 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
         event.params.currencyAmounts[i]
       );
     } else {
-      log.error("Liquidity already present: {}",[token.id]);
-      let numerator = event.params.tokenAmounts[i].times(token.currencyReserve) as BigInt
-      let denominator = token.tokenAmount as BigInt
-      let reserve = divRound(numerator, denominator)
+      log.error("Liquidity already present: {}", [token.id]);
+      let numerator = event.params.tokenAmounts[i].times(
+        token.currencyReserve
+      ) as BigInt;
+      let denominator = token.tokenAmount as BigInt;
+      if (denominator.equals(BigInt.fromI32(0))) {
+        log.error("Denominator is zero: {}", [token.id]);
+        return;
+      }
+      let reserve = divRound(numerator, denominator);
       token.currencyReserve = token.currencyReserve.plus(reserve);
     }
     token.tokenAmount = token.tokenAmount.plus(event.params.tokenAmounts[i]);
@@ -88,7 +94,9 @@ export function handleTokenPurchase(event: TokensPurchase): void {
 
   let tokenIds = event.params.tokensBoughtIds;
   for (let i = 0; i < tokenIds.length; i++) {
-    log.error("TokenPurchase: {}", [event.params.tokensBoughtAmounts[i].toString()]);
+    log.error("TokenPurchase: {}", [
+      event.params.tokensBoughtAmounts[i].toString(),
+    ]);
     let tokenConId = tokenIds[i]
       .toHexString()
       .concat("-")
@@ -109,9 +117,14 @@ export function handleTokenPurchase(event: TokensPurchase): void {
     let numerator = currencyReserve
       .times(amountBought)
       .times(BigInt.fromI32(1000));
-    let denominator = (tokenAmount
-      .minus(amountBought))
+    let denominator = tokenAmount
+      .minus(amountBought)
       .times(BigInt.fromI32(1000).minus(lpFee));
+
+    if (denominator.equals(BigInt.fromI32(0))) {
+      log.error("Denominator is zero: {}", [token.id]);
+      return;
+    }
 
     let buyPrice = divRound(numerator, denominator);
 
@@ -137,7 +150,9 @@ export function handleCurrencyPurchase(event: CurrencyPurchase): void {
 
   let tokenIds = event.params.tokensSoldIds;
   for (let i = 0; i < tokenIds.length; i++) {
-    log.error("CurrencyPurchase: {}", [event.params.tokensSoldAmounts[i].toString()]);
+    log.error("CurrencyPurchase: {}", [
+      event.params.tokensSoldAmounts[i].toString(),
+    ]);
     let tokenConId = tokenIds[i]
       .toHexString()
       .concat("-")
@@ -163,7 +178,7 @@ export function handleCurrencyPurchase(event: CurrencyPurchase): void {
       .plus(amountSold.times(BigInt.fromI32(1000).minus(lpFee)));
 
     let sellPrice = numerator.div(denominator);
-  
+
     token.tokenAmount = token.tokenAmount.plus(
       event.params.tokensSoldAmounts[i]
     );

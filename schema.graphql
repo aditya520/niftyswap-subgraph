@@ -58,8 +58,6 @@ type Token @entity{
   tokenAmount: BigInt!
   # Currency Reserve
   currencyReserve: BigInt!
-  # Royalty Amount
-  royalty: BigInt
 }
 
 type NiftyswapExchange @entity {
@@ -77,4 +75,6 @@ type NiftyswapExchange @entity {
   liquidity: BigInt!
   # all time number of transactions
   txCount: BigInt!
+  # lp Fee
+  lpFee: BigInt!
 }

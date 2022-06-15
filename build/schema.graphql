@@ -75,4 +75,6 @@ type NiftyswapExchange @entity {
   liquidity: BigInt!
   # all time number of transactions
   txCount: BigInt!
+  # lp Fee
+  lpFee: BigInt!
 }

@@ -13,7 +13,7 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
     event.address.toHexString()
   ) as NiftyswapExchange;
   if (niftyswapExchange == null) {
-    log.error("Exchange not found: ", [event.address.toHexString()]);
+    log.error("Exchange not found: {}", [event.address.toHexString()]);
     return;
   }
   let tokenIds = event.params.tokenIds;
@@ -33,9 +33,9 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
         event.params.currencyAmounts[i]
       );
     } else {
-      log.error("Token found: ",[token.id]);
-      let numerator = event.params.currencyAmounts[i].times(token.currencyReserve) as BigInt
-      let denominator = token.tokenAmount.minus(event.params.tokenAmounts[i]) as BigInt
+      log.error("Liquidity already present: {}",[token.id]);
+      let numerator = event.params.tokenAmounts[i].times(token.currencyReserve) as BigInt
+      let denominator = token.tokenAmount as BigInt
       let reserve = divRound(numerator, denominator)
       token.currencyReserve = token.currencyReserve.plus(reserve);
     }
@@ -51,7 +51,7 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
     event.address.toHexString()
   ) as NiftyswapExchange;
   if (niftyswapExchange == null) {
-    log.error("Exchange not found: ", [event.address.toHexString()]);
+    log.error("Exchange not found: {}", [event.address.toHexString()]);
     return;
   }
   let tokenIds = event.params.tokenIds;
@@ -64,7 +64,7 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
       .concat(niftyswapExchange.id);
     let token = Token.load(tokenConId);
     if (token == null) {
-      log.error("Token not found: ", [tokenConId]);
+      log.error("Token not found: {}", [tokenConId]);
       return;
     }
     token.tokenAmount = token.tokenAmount.minus(event.params.tokenAmounts[i]);
@@ -82,12 +82,13 @@ export function handleTokenPurchase(event: TokensPurchase): void {
     event.address.toHexString()
   ) as NiftyswapExchange;
   if (exchange == null) {
-    log.error("Exchange not found: ", [event.address.toHexString()]);
+    log.error("Exchange not found: {}", [event.address.toHexString()]);
     return;
   }
 
   let tokenIds = event.params.tokensBoughtIds;
   for (let i = 0; i < tokenIds.length; i++) {
+    log.error("TokenPurchase: {}", [event.params.tokensBoughtAmounts[i].toString()]);
     let tokenConId = tokenIds[i]
       .toHexString()
       .concat("-")
@@ -96,21 +97,21 @@ export function handleTokenPurchase(event: TokensPurchase): void {
       .concat(exchange.id);
     let token = Token.load(tokenConId);
     if (token == null) {
-      log.error("Token not found: ", [tokenConId]);
+      log.error("Token not found: {}", [tokenConId]);
       return;
     }
 
-    let currencyReserve = token.currencyReserve as BigInt;
     let amountBought = event.params.tokensBoughtAmounts[i] as BigInt;
+    let currencyReserve = token.currencyReserve as BigInt;
     let tokenAmount = token.tokenAmount as BigInt;
     let lpFee = exchange.lpFee;
 
     let numerator = currencyReserve
       .times(amountBought)
-      .times(BigInt.fromI32(100));
-    let denominator = tokenAmount
-      .minus(amountBought)
-      .times(BigInt.fromI32(100).minus(lpFee));
+      .times(BigInt.fromI32(1000));
+    let denominator = (tokenAmount
+      .minus(amountBought))
+      .times(BigInt.fromI32(1000).minus(lpFee));
 
     let buyPrice = divRound(numerator, denominator);
 
@@ -130,12 +131,13 @@ export function handleCurrencyPurchase(event: CurrencyPurchase): void {
     event.address.toHexString()
   ) as NiftyswapExchange;
   if (exchange == null) {
-    log.error("Exchange not found: ", [event.address.toHexString()]);
+    log.error("Exchange not found: {}", [event.address.toHexString()]);
     return;
   }
 
   let tokenIds = event.params.tokensSoldIds;
   for (let i = 0; i < tokenIds.length; i++) {
+    log.error("CurrencyPurchase: {}", [event.params.tokensSoldAmounts[i].toString()]);
     let tokenConId = tokenIds[i]
       .toHexString()
       .concat("-")
@@ -144,25 +146,24 @@ export function handleCurrencyPurchase(event: CurrencyPurchase): void {
       .concat(exchange.id);
     let token = Token.load(tokenConId);
     if (token == null) {
-      log.error("Token not found: ", [tokenConId]);
+      log.error("Token not found: {}", [tokenConId]);
       return;
     }
 
-    let currencyReserve = token.currencyReserve as BigInt;
     let amountSold = event.params.tokensSoldAmounts[i] as BigInt;
     let tokenReserve = token.tokenAmount as BigInt;
+    let currencyReserve = token.currencyReserve as BigInt;
     let lpFee = exchange.lpFee as BigInt;
 
     let numerator = currencyReserve
-      .times(tokenReserve)
+      .times(amountSold)
       .times(BigInt.fromI32(1000).minus(lpFee));
     let denominator = tokenReserve
       .times(BigInt.fromI32(1000))
-      .plus(tokenReserve.times(BigInt.fromI32(1000).minus(lpFee)));
+      .plus(amountSold.times(BigInt.fromI32(1000).minus(lpFee)));
 
     let sellPrice = numerator.div(denominator);
-    // let sellPrice =(token.currencyReserve[i]*tokenReserve*(1000-lpFee))/(((tokenReserve * 1000) + tokenReserve*(1000-lpFee)))
-
+  
     token.tokenAmount = token.tokenAmount.plus(
       event.params.tokensSoldAmounts[i]
     );

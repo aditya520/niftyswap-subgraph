@@ -22,8 +22,6 @@ type Currency @entity {
   poolCount: BigInt!
   # liquidity across all Exchanges in token units
   totalValueLocked: BigDecimal
-  # Exchange
-  exchange: NiftyswapExchange!
 }
 
 type TokenMeta @entity {
@@ -70,7 +68,7 @@ type NiftyswapExchange @entity {
   # token
   tokenMeta: TokenMeta!
   # currency
-  currency: Currency! @derivedFrom(field: "exchange")
+  currency: Currency!
   # in range liquidity
   liquidity: BigInt!
   # all time number of transactions

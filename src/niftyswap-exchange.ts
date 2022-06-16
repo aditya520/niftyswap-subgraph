@@ -39,16 +39,25 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
         event.params.currencyAmounts[i]
       );
     } else {
-      log.error("Liquidity already present: {}",[token.id]);
-      let numerator = event.params.tokenAmounts[i].times(token.currencyReserve) as BigInt
-      let denominator = token.tokenAmount as BigInt
-      let reserve = divRound(numerator, denominator)
+      log.error("Liquidity already present: {}", [token.id]);
+      let numerator = event.params.tokenAmounts[i].times(
+        token.currencyReserve
+      ) as BigInt;
+      let denominator = token.tokenAmount as BigInt;
+      let reserve = divRound(numerator, denominator);
       token.currencyReserve = token.currencyReserve.plus(reserve);
     }
     token.tokenAmount = token.tokenAmount.plus(event.params.tokenAmounts[i]);
     // Spot price calculation
-    if (token.currencyReserve > BigInt.fromI32(0) && token.tokenAmount > BigInt.fromI32(0)) {
-      token.spotPrice = token.currencyReserve.div(currency.decimals).div(token.tokenAmount).toBigDecimal();
+    if (
+      token.currencyReserve > BigInt.fromI32(0) &&
+      token.tokenAmount > BigInt.fromI32(0)
+    ) {
+      let decimals = (currency.decimals as unknown) as number;
+      token.spotPrice = token.currencyReserve
+        .div(BigInt.fromI64(10).pow(decimals))
+        .div(token.tokenAmount)
+        .toBigDecimal();
     } else {
       token.spotPrice = BigDecimal.zero();
     }
@@ -92,8 +101,15 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
       event.params.details[i].currencyAmount
     );
     // Spot price calculation
-    if (token.currencyReserve > BigInt.fromI32(0) && token.tokenAmount > BigInt.fromI32(0)) {
-      token.spotPrice = token.currencyReserve.div(currency.decimals).div(token.tokenAmount).toBigDecimal();
+    if (
+      token.currencyReserve > BigInt.fromI32(0) &&
+      token.tokenAmount > BigInt.fromI32(0)
+    ) {
+      let decimals = (currency.decimals as unknown) as number;
+      token.spotPrice = token.currencyReserve
+        .div(BigInt.fromI64(10).pow(decimals))
+        .div(token.tokenAmount)
+        .toBigDecimal();
     } else {
       token.spotPrice = BigDecimal.zero();
     }
@@ -120,7 +136,9 @@ export function handleTokenPurchase(event: TokensPurchase): void {
 
   let tokenIds = event.params.tokensBoughtIds;
   for (let i = 0; i < tokenIds.length; i++) {
-    log.error("TokenPurchase: {}", [event.params.tokensBoughtAmounts[i].toString()]);
+    log.error("TokenPurchase: {}", [
+      event.params.tokensBoughtAmounts[i].toString(),
+    ]);
     let tokenConId = tokenIds[i]
       .toHexString()
       .concat("-")
@@ -141,8 +159,8 @@ export function handleTokenPurchase(event: TokensPurchase): void {
     let numerator = currencyReserve
       .times(amountBought)
       .times(BigInt.fromI32(1000));
-    let denominator = (tokenAmount
-      .minus(amountBought))
+    let denominator = tokenAmount
+      .minus(amountBought)
       .times(BigInt.fromI32(1000).minus(lpFee));
 
     let buyPrice = divRound(numerator, denominator);
@@ -154,8 +172,15 @@ export function handleTokenPurchase(event: TokensPurchase): void {
     token.currencyReserve = token.currencyReserve.plus(buyPrice);
 
     // Spot price calculation
-    if (token.currencyReserve > BigInt.fromI32(0) && token.tokenAmount > BigInt.fromI32(0)) {
-      token.spotPrice = token.currencyReserve.div(currency.decimals).div(token.tokenAmount).toBigDecimal();
+    if (
+      token.currencyReserve > BigInt.fromI32(0) &&
+      token.tokenAmount > BigInt.fromI32(0)
+    ) {
+      let decimals = (currency.decimals as unknown) as number;
+      token.spotPrice = token.currencyReserve
+        .div(BigInt.fromI64(10).pow(decimals))
+        .div(token.tokenAmount)
+        .toBigDecimal();
     } else {
       token.spotPrice = BigDecimal.zero();
     }
@@ -182,7 +207,9 @@ export function handleCurrencyPurchase(event: CurrencyPurchase): void {
 
   let tokenIds = event.params.tokensSoldIds;
   for (let i = 0; i < tokenIds.length; i++) {
-    log.error("CurrencyPurchase: {}", [event.params.tokensSoldAmounts[i].toString()]);
+    log.error("CurrencyPurchase: {}", [
+      event.params.tokensSoldAmounts[i].toString(),
+    ]);
     let tokenConId = tokenIds[i]
       .toHexString()
       .concat("-")
@@ -208,15 +235,22 @@ export function handleCurrencyPurchase(event: CurrencyPurchase): void {
       .plus(amountSold.times(BigInt.fromI32(1000).minus(lpFee)));
 
     let sellPrice = numerator.div(denominator);
-  
+
     token.tokenAmount = token.tokenAmount.plus(
       event.params.tokensSoldAmounts[i]
     );
     token.currencyReserve = token.currencyReserve.minus(sellPrice);
 
     // Spot price calculation
-    if (token.currencyReserve > BigInt.fromI32(0) && token.tokenAmount > BigInt.fromI32(0)) {
-      token.spotPrice = token.currencyReserve.div(currency.decimals).div(token.tokenAmount).toBigDecimal();
+    if (
+      token.currencyReserve > BigInt.fromI32(0) &&
+      token.tokenAmount > BigInt.fromI32(0)
+    ) {
+      let decimals = (currency.decimals as unknown) as number;
+      token.spotPrice = token.currencyReserve
+        .div(BigInt.fromI64(10).pow(decimals))
+        .div(token.tokenAmount)
+        .toBigDecimal();
     } else {
       token.spotPrice = BigDecimal.zero();
     }

@@ -49,16 +49,14 @@ export function handleNewExchange(event: NewExchange): void {
   let niftyswapExchange = new NiftyswapExchange(event.params.exchange.toHexString()) as NiftyswapExchange
   
   niftyswapExchange.tokenMeta = tokenMeta.id
-  // niftyswapExchange.currency = currency.id
   niftyswapExchange.createdAtTimestamp = event.block.timestamp
   niftyswapExchange.createdAtBlockNumber  = event.block.number
   niftyswapExchange.liquidity = BigInt.fromI32(0)
   niftyswapExchange.txCount = BigInt.fromI32(0)
   niftyswapExchange.lpFee = event.params.lpFee
   Exchange.create(event.params.exchange)
+  niftyswapExchange.currency = currency.id
   niftyswapExchange.save()
-
-  currency.exchange = niftyswapExchange.id
   currency.save()
 }
 

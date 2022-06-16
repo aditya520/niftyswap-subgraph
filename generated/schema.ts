@@ -169,15 +169,6 @@ export class Currency extends Entity {
       this.set("totalValueLocked", Value.fromBigDecimal(<BigDecimal>value));
     }
   }
-
-  get exchange(): string {
-    let value = this.get("exchange");
-    return value!.toString();
-  }
-
-  set exchange(value: string) {
-    this.set("exchange", Value.fromString(value));
-  }
 }
 
 export class TokenMeta extends Entity {

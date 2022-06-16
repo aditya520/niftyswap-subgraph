@@ -1,12 +1,11 @@
-import { NiftyswapExchange } from "./../generated/schema";
-import { BigInt, log } from "@graphprotocol/graph-ts";
+import { NiftyswapExchange, Token, Currency } from "./../generated/schema";
+import { BigInt, log, BigDecimal } from "@graphprotocol/graph-ts";
 import {
   LiquidityAdded,
   LiquidityRemoved,
   TokensPurchase,
   CurrencyPurchase,
 } from "./../generated/NiftyswapFactory/NiftyswapExchange";
-import { Token } from "../generated/schema";
 
 export function handleLiquidityAdded(event: LiquidityAdded): void {
   let niftyswapExchange = NiftyswapExchange.load(
@@ -16,6 +15,13 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
     log.error("Exchange not found: {}", [event.address.toHexString()]);
     return;
   }
+
+  let currency = Currency.load(niftyswapExchange.currency) as Currency;
+  if (currency == null) {
+    log.error("Currency not found: {}", [niftyswapExchange.currency]);
+    return;
+  }
+
   let tokenIds = event.params.tokenIds;
   for (let i = 0; i < tokenIds.length; i++) {
     let tokenConId = tokenIds[i]
@@ -40,6 +46,13 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
       token.currencyReserve = token.currencyReserve.plus(reserve);
     }
     token.tokenAmount = token.tokenAmount.plus(event.params.tokenAmounts[i]);
+    // Spot price calculation
+    if (token.currencyReserve > BigInt.fromI32(0) && token.tokenAmount > BigInt.fromI32(0)) {
+      token.spotPrice = token.currencyReserve.div(currency.decimals).div(token.tokenAmount).toBigDecimal();
+    } else {
+      token.spotPrice = BigDecimal.zero();
+    }
+
     token.save();
   }
   niftyswapExchange.txCount = niftyswapExchange.txCount.plus(BigInt.fromI32(1));
@@ -54,6 +67,13 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
     log.error("Exchange not found: {}", [event.address.toHexString()]);
     return;
   }
+
+  let currency = Currency.load(niftyswapExchange.currency) as Currency;
+  if (currency == null) {
+    log.error("Currency not found: {}", [niftyswapExchange.currency]);
+    return;
+  }
+
   let tokenIds = event.params.tokenIds;
   for (let i = 0; i < tokenIds.length; i++) {
     let tokenConId = tokenIds[i]
@@ -71,6 +91,12 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
     token.currencyReserve = token.currencyReserve.minus(
       event.params.details[i].currencyAmount
     );
+    // Spot price calculation
+    if (token.currencyReserve > BigInt.fromI32(0) && token.tokenAmount > BigInt.fromI32(0)) {
+      token.spotPrice = token.currencyReserve.div(currency.decimals).div(token.tokenAmount).toBigDecimal();
+    } else {
+      token.spotPrice = BigDecimal.zero();
+    }
     token.save();
   }
   niftyswapExchange.txCount = niftyswapExchange.txCount.plus(BigInt.fromI32(1));
@@ -78,11 +104,17 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
 }
 
 export function handleTokenPurchase(event: TokensPurchase): void {
-  let exchange = NiftyswapExchange.load(
+  let niftyswapExchange = NiftyswapExchange.load(
     event.address.toHexString()
   ) as NiftyswapExchange;
-  if (exchange == null) {
+  if (niftyswapExchange == null) {
     log.error("Exchange not found: {}", [event.address.toHexString()]);
+    return;
+  }
+
+  let currency = Currency.load(niftyswapExchange.currency) as Currency;
+  if (currency == null) {
+    log.error("Currency not found: {}", [niftyswapExchange.currency]);
     return;
   }
 
@@ -92,9 +124,9 @@ export function handleTokenPurchase(event: TokensPurchase): void {
     let tokenConId = tokenIds[i]
       .toHexString()
       .concat("-")
-      .concat(exchange.tokenMeta)
+      .concat(niftyswapExchange.tokenMeta)
       .concat("-")
-      .concat(exchange.id);
+      .concat(niftyswapExchange.id);
     let token = Token.load(tokenConId);
     if (token == null) {
       log.error("Token not found: {}", [tokenConId]);
@@ -104,7 +136,7 @@ export function handleTokenPurchase(event: TokensPurchase): void {
     let amountBought = event.params.tokensBoughtAmounts[i] as BigInt;
     let currencyReserve = token.currencyReserve as BigInt;
     let tokenAmount = token.tokenAmount as BigInt;
-    let lpFee = exchange.lpFee;
+    let lpFee = niftyswapExchange.lpFee;
 
     let numerator = currencyReserve
       .times(amountBought)
@@ -120,18 +152,31 @@ export function handleTokenPurchase(event: TokensPurchase): void {
     );
 
     token.currencyReserve = token.currencyReserve.plus(buyPrice);
+
+    // Spot price calculation
+    if (token.currencyReserve > BigInt.fromI32(0) && token.tokenAmount > BigInt.fromI32(0)) {
+      token.spotPrice = token.currencyReserve.div(currency.decimals).div(token.tokenAmount).toBigDecimal();
+    } else {
+      token.spotPrice = BigDecimal.zero();
+    }
     token.save();
   }
-  exchange.txCount = exchange.txCount.plus(BigInt.fromI32(1));
-  exchange.save();
+  niftyswapExchange.txCount = niftyswapExchange.txCount.plus(BigInt.fromI32(1));
+  niftyswapExchange.save();
 }
 
 export function handleCurrencyPurchase(event: CurrencyPurchase): void {
-  let exchange = NiftyswapExchange.load(
+  let niftyswapExchange = NiftyswapExchange.load(
     event.address.toHexString()
   ) as NiftyswapExchange;
-  if (exchange == null) {
+  if (niftyswapExchange == null) {
     log.error("Exchange not found: {}", [event.address.toHexString()]);
+    return;
+  }
+
+  let currency = Currency.load(niftyswapExchange.currency) as Currency;
+  if (currency == null) {
+    log.error("Currency not found: {}", [niftyswapExchange.currency]);
     return;
   }
 
@@ -141,9 +186,9 @@ export function handleCurrencyPurchase(event: CurrencyPurchase): void {
     let tokenConId = tokenIds[i]
       .toHexString()
       .concat("-")
-      .concat(exchange.tokenMeta)
+      .concat(niftyswapExchange.tokenMeta)
       .concat("-")
-      .concat(exchange.id);
+      .concat(niftyswapExchange.id);
     let token = Token.load(tokenConId);
     if (token == null) {
       log.error("Token not found: {}", [tokenConId]);
@@ -153,7 +198,7 @@ export function handleCurrencyPurchase(event: CurrencyPurchase): void {
     let amountSold = event.params.tokensSoldAmounts[i] as BigInt;
     let tokenReserve = token.tokenAmount as BigInt;
     let currencyReserve = token.currencyReserve as BigInt;
-    let lpFee = exchange.lpFee as BigInt;
+    let lpFee = niftyswapExchange.lpFee as BigInt;
 
     let numerator = currencyReserve
       .times(amountSold)
@@ -168,10 +213,17 @@ export function handleCurrencyPurchase(event: CurrencyPurchase): void {
       event.params.tokensSoldAmounts[i]
     );
     token.currencyReserve = token.currencyReserve.minus(sellPrice);
+
+    // Spot price calculation
+    if (token.currencyReserve > BigInt.fromI32(0) && token.tokenAmount > BigInt.fromI32(0)) {
+      token.spotPrice = token.currencyReserve.div(currency.decimals).div(token.tokenAmount).toBigDecimal();
+    } else {
+      token.spotPrice = BigDecimal.zero();
+    }
     token.save();
   }
-  exchange.txCount = exchange.txCount.plus(BigInt.fromI32(1));
-  exchange.save();
+  niftyswapExchange.txCount = niftyswapExchange.txCount.plus(BigInt.fromI32(1));
+  niftyswapExchange.save();
 }
 
 function divRound(a: BigInt, b: BigInt): BigInt {

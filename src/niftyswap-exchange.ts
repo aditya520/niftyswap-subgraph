@@ -1,5 +1,7 @@
 import { NiftyswapExchange, Token, Currency } from "./../generated/schema";
 import { BigInt, log, BigDecimal } from "@graphprotocol/graph-ts";
+import { ONE_BI, ZERO_BI, ZERO_BD, ONE_BD } from './utils/constants'
+
 import {
   LiquidityAdded,
   LiquidityRemoved,
@@ -53,11 +55,10 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
       token.currencyReserve > BigInt.fromI32(0) &&
       token.tokenAmount > BigInt.fromI32(0)
     ) {
-      let decimals = (currency.decimals as unknown) as number;
-      token.spotPrice = token.currencyReserve
-        .div(BigInt.fromI64(10).pow(decimals))
-        .div(token.tokenAmount)
-        .toBigDecimal();
+      let currencyReserve = token.currencyReserve.toBigDecimal();
+      let denominator = bigDecimalExponated(BigDecimal.fromString("10"), currency.decimals);
+      let tokenAmount = token.tokenAmount.toBigDecimal();
+      token.spotPrice = currencyReserve.div(denominator).div(tokenAmount);
     } else {
       token.spotPrice = BigDecimal.zero();
     }
@@ -105,11 +106,10 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
       token.currencyReserve > BigInt.fromI32(0) &&
       token.tokenAmount > BigInt.fromI32(0)
     ) {
-      let decimals = (currency.decimals as unknown) as number;
-      token.spotPrice = token.currencyReserve
-        .div(BigInt.fromI64(10).pow(decimals))
-        .div(token.tokenAmount)
-        .toBigDecimal();
+      let currencyReserve = token.currencyReserve.toBigDecimal();
+      let denominator = bigDecimalExponated(BigDecimal.fromString("10"), currency.decimals);
+      let tokenAmount = token.tokenAmount.toBigDecimal();
+      token.spotPrice = currencyReserve.div(denominator).div(tokenAmount);
     } else {
       token.spotPrice = BigDecimal.zero();
     }
@@ -176,11 +176,10 @@ export function handleTokenPurchase(event: TokensPurchase): void {
       token.currencyReserve > BigInt.fromI32(0) &&
       token.tokenAmount > BigInt.fromI32(0)
     ) {
-      let decimals = (currency.decimals as unknown) as number;
-      token.spotPrice = token.currencyReserve
-        .div(BigInt.fromI64(10).pow(decimals))
-        .div(token.tokenAmount)
-        .toBigDecimal();
+      let currencyReserve = token.currencyReserve.toBigDecimal();
+      let denominator = bigDecimalExponated(BigDecimal.fromString("10"), currency.decimals);
+      let tokenAmount = token.tokenAmount.toBigDecimal();
+      token.spotPrice = currencyReserve.div(denominator).div(tokenAmount);
     } else {
       token.spotPrice = BigDecimal.zero();
     }
@@ -246,11 +245,10 @@ export function handleCurrencyPurchase(event: CurrencyPurchase): void {
       token.currencyReserve > BigInt.fromI32(0) &&
       token.tokenAmount > BigInt.fromI32(0)
     ) {
-      let decimals = (currency.decimals as unknown) as number;
-      token.spotPrice = token.currencyReserve
-        .div(BigInt.fromI64(10).pow(decimals))
-        .div(token.tokenAmount)
-        .toBigDecimal();
+      let currencyReserve = token.currencyReserve.toBigDecimal();
+      let denominator = bigDecimalExponated(BigDecimal.fromString("10"), currency.decimals);
+      let tokenAmount = token.tokenAmount.toBigDecimal();
+      token.spotPrice = currencyReserve.div(denominator).div(tokenAmount);
     } else {
       token.spotPrice = BigDecimal.zero();
     }
@@ -264,4 +262,32 @@ function divRound(a: BigInt, b: BigInt): BigInt {
   return a.mod(b).equals(BigInt.fromI32(0))
     ? a.div(b)
     : a.div(b).plus(BigInt.fromI32(1));
+}
+
+
+export function bigDecimalExponated(value: BigDecimal, power: BigInt): BigDecimal {
+  if (power.equals(ZERO_BI)) {
+    return ONE_BD
+  }
+  let negativePower = power.lt(ZERO_BI)
+  let result = ZERO_BD.plus(value)
+  let powerAbs = power.abs()
+  for (let i = ONE_BI; i.lt(powerAbs); i = i.plus(ONE_BI)) {
+    result = result.times(value)
+  }
+
+  if (negativePower) {
+    result = safeDiv(ONE_BD, result)
+  }
+
+  return result
+}
+
+// return 0 if denominator is 0 in division
+export function safeDiv(amount0: BigDecimal, amount1: BigDecimal): BigDecimal {
+  if (amount1.equals(ZERO_BD)) {
+    return ZERO_BD
+  } else {
+    return amount0.div(amount1)
+  }
 }

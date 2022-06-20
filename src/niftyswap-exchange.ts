@@ -27,7 +27,7 @@ export function handleLiquidityAdded(event: LiquidityAdded): void {
   let tokenIds = event.params.tokenIds;
   for (let i = 0; i < tokenIds.length; i++) {
     let tokenConId = tokenIds[i]
-      .toHexString()
+      .toString()
       .concat("-")
       .concat(niftyswapExchange.tokenMeta)
       .concat("-")
@@ -87,7 +87,7 @@ export function handleLiquidityRemoved(event: LiquidityRemoved): void {
   let tokenIds = event.params.tokenIds;
   for (let i = 0; i < tokenIds.length; i++) {
     let tokenConId = tokenIds[i]
-      .toHexString()
+      .toString()
       .concat("-")
       .concat(niftyswapExchange.tokenMeta)
       .concat("-")
@@ -140,7 +140,7 @@ export function handleTokenPurchase(event: TokensPurchase): void {
       event.params.tokensBoughtAmounts[i].toString(),
     ]);
     let tokenConId = tokenIds[i]
-      .toHexString()
+      .toString()
       .concat("-")
       .concat(niftyswapExchange.tokenMeta)
       .concat("-")
@@ -210,7 +210,7 @@ export function handleCurrencyPurchase(event: CurrencyPurchase): void {
       event.params.tokensSoldAmounts[i].toString(),
     ]);
     let tokenConId = tokenIds[i]
-      .toHexString()
+      .toString()
       .concat("-")
       .concat(niftyswapExchange.tokenMeta)
       .concat("-")
